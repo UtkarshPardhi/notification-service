@@ -16,5 +16,7 @@ public class SmsNotificationService implements NotificationService {
         log.info("Mobile :{}", request.getRecipient());
         log.info("Message : {}", request.getMessage());
         log.info("==============================");
+
+        //throw new RuntimeException("Server Down");
     }
 }

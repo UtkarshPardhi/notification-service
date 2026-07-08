@@ -16,5 +16,7 @@ public class PushNotificationService implements NotificationService {
         log.info("User :{}", request.getRecipient());
         log.info("Message : {}", request.getMessage());
         log.info("==============================");
+
+        throw new RuntimeException("Server Down");
     }
 }
