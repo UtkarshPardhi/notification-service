@@ -1,0 +1,65 @@
+package com.utkarsh.notification_service.config;
+
+import com.utkarsh.notification_service.constants.RabbitMQConstants;
+import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.retry.MessageRecoverer;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
+
+@Configuration
+@RequiredArgsConstructor
+public class RabbitRetryConfig {
+
+    private final RabbitTemplate rabbitTemplate;
+    private final ConnectionFactory connectionFactory;
+    private final Jackson2JsonMessageConverter jackson2JsonMessageConverter;
+
+    @Bean
+    public MessageRecoverer emailMessageRecoverer() {
+
+        return new RepublishMessageRecoverer(
+                rabbitTemplate,
+                RabbitMQConstants.DLX_EXCHANGE,
+                RabbitMQConstants.EMAIL_DLQ_ROUTING_KEY
+        );
+    }
+
+    @Bean
+    public RetryOperationsInterceptor emailRetryInterceptor(
+            @Qualifier("emailMessageRecoverer")
+            MessageRecoverer emailMessageRecoverer) {
+
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(3)
+                .backOffOptions(1000, 2.0, 10000)
+                .recoverer(emailMessageRecoverer)
+                .build();
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory emailRetryContainerFactory(
+            @Qualifier("emailRetryInterceptor")
+            RetryOperationsInterceptor emailRetryInterceptor) {
+
+        SimpleRabbitListenerContainerFactory factory =
+                new SimpleRabbitListenerContainerFactory();
+
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jackson2JsonMessageConverter);
+
+        factory.setAdviceChain(emailRetryInterceptor);
+
+        factory.setDefaultRequeueRejected(false);
+
+        return factory;
+    }
+
+}
