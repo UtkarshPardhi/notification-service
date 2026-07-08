@@ -13,7 +13,7 @@ public class SmsConsumer {
 
     private final SmsNotificationService smsNotificationService;
 
-    @RabbitListener(queues = RabbitMQConstants.SMS_QUEUE)
+    @RabbitListener(queues = RabbitMQConstants.SMS_QUEUE, containerFactory = "smsRetryContainerFactory")
     public void consumeSms(NotificationRequest request) {
 
         smsNotificationService.send(request);

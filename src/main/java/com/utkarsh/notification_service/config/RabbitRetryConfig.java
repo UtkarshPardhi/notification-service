@@ -22,6 +22,7 @@ public class RabbitRetryConfig {
     private final ConnectionFactory connectionFactory;
     private final Jackson2JsonMessageConverter jackson2JsonMessageConverter;
 
+    // EMAIL
     @Bean
     public MessageRecoverer emailMessageRecoverer() {
 
@@ -56,6 +57,88 @@ public class RabbitRetryConfig {
         factory.setMessageConverter(jackson2JsonMessageConverter);
 
         factory.setAdviceChain(emailRetryInterceptor);
+
+        factory.setDefaultRequeueRejected(false);
+
+        return factory;
+    }
+
+    // SMS
+    @Bean
+    public MessageRecoverer smsMessageRecoverer() {
+
+        return new RepublishMessageRecoverer(
+                rabbitTemplate,
+                RabbitMQConstants.DLX_EXCHANGE,
+                RabbitMQConstants.SMS_DLQ_ROUTING_KEY
+        );
+    }
+
+    @Bean
+    public RetryOperationsInterceptor smsRetryInterceptor(
+            @Qualifier("smsMessageRecoverer")
+            MessageRecoverer smsMessageRecoverer) {
+
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(3)
+                .backOffOptions(1000, 2.0, 10000)
+                .recoverer(smsMessageRecoverer)
+                .build();
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory smsRetryContainerFactory(
+            @Qualifier("smsRetryInterceptor")
+            RetryOperationsInterceptor smsRetryInterceptor) {
+
+        SimpleRabbitListenerContainerFactory factory =
+                new SimpleRabbitListenerContainerFactory();
+
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jackson2JsonMessageConverter);
+
+        factory.setAdviceChain(smsRetryInterceptor);
+
+        factory.setDefaultRequeueRejected(false);
+
+        return factory;
+    }
+
+    // PUSH
+    @Bean
+    public MessageRecoverer pushMessageRecoverer() {
+
+        return new RepublishMessageRecoverer(
+                rabbitTemplate,
+                RabbitMQConstants.DLX_EXCHANGE,
+                RabbitMQConstants.PUSH_DLQ_ROUTING_KEY
+        );
+    }
+
+    @Bean
+    public RetryOperationsInterceptor pushRetryInterceptor(
+            @Qualifier("pushMessageRecoverer")
+            MessageRecoverer pushMessageRecoverer) {
+
+        return RetryInterceptorBuilder.stateless()
+                .maxAttempts(3)
+                .backOffOptions(1000, 2.0, 10000)
+                .recoverer(pushMessageRecoverer)
+                .build();
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory pushRetryContainerFactory(
+            @Qualifier("pushRetryInterceptor")
+            RetryOperationsInterceptor pushRetryInterceptor) {
+
+        SimpleRabbitListenerContainerFactory factory =
+                new SimpleRabbitListenerContainerFactory();
+
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jackson2JsonMessageConverter);
+
+        factory.setAdviceChain(pushRetryInterceptor);
 
         factory.setDefaultRequeueRejected(false);
 

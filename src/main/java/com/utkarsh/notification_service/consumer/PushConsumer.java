@@ -13,7 +13,7 @@ public class PushConsumer {
 
     private final PushNotificationService pushNotificationService;
 
-    @RabbitListener(queues = RabbitMQConstants.PUSH_QUEUE)
+    @RabbitListener(queues = RabbitMQConstants.PUSH_QUEUE, containerFactory = "pushRetryContainerFactory")
     public void consumePush(NotificationRequest request) {
 
         pushNotificationService.send(request);
