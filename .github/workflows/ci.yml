@@ -16,6 +16,21 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: notification_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d notification_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
 
       - name: Checkout Repository
@@ -28,5 +43,16 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Wait for PostgreSQL
+        run: |
+            until pg_isready -h localhost -p 5432 -U postgres; do
+              echo "Waiting for PostgreSQL..."
+              sleep 2
+            done
+
       - name: Build Project
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/notification_db
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
         run: mvn clean verify

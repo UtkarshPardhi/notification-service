@@ -1,0 +1,1 @@
+ ssh -i "notification-service-key.pem" ubuntu@ec2-40-192-119-86.ap-south-2.compute.amazonaws.com
