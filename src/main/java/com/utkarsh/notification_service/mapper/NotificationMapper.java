@@ -1,6 +1,7 @@
 package com.utkarsh.notification_service.mapper;
 
 import com.utkarsh.notification_service.dto.NotificationRequest;
+import com.utkarsh.notification_service.dto.NotificationResponse;
 import com.utkarsh.notification_service.entity.Notification;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 
@@ -24,4 +25,20 @@ public final class NotificationMapper {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
+
+    public static NotificationResponse toResponse(Notification notification) {
+
+        return NotificationResponse.builder()
+                .id(notification.getId())
+                .type(notification.getType())
+                .recipient(notification.getRecipient())
+                .subject(notification.getSubject())
+                .message(notification.getMessage())
+                .status(notification.getStatus())
+                .retryCount(notification.getRetryCount())
+                .createdAt(notification.getCreatedAt())
+                .updatedAt(notification.getUpdatedAt())
+                .build();
+    }
 }
+

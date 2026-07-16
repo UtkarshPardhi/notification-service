@@ -1,15 +1,19 @@
 package com.utkarsh.notification_service.service;
 
 import com.utkarsh.notification_service.dto.NotificationRequest;
+import com.utkarsh.notification_service.dto.NotificationResponse;
 import com.utkarsh.notification_service.entity.Notification;
 import com.utkarsh.notification_service.mapper.NotificationMapper;
 import com.utkarsh.notification_service.producer.NotificationProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
-public class NotificationServiceImpl implements NotificationService {
+public class NotificationServiceImpl implements NotificationProcessingService {
 
     private final NotificationPersistenceService persistenceService;
     private final NotificationProducer producer;
@@ -22,5 +26,14 @@ public class NotificationServiceImpl implements NotificationService {
         Notification savedNotification = persistenceService.save(notification);
 
         producer.publish(request);
+    }
+
+    @Override
+    public List<NotificationResponse> getAllNotifications() {
+
+        return persistenceService.findAll()
+                .stream()
+                .map(NotificationMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

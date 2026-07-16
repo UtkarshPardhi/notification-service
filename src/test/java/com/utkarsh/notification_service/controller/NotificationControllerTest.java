@@ -3,7 +3,7 @@ package com.utkarsh.notification_service.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationType;
-import com.utkarsh.notification_service.producer.NotificationProducer;
+import com.utkarsh.notification_service.service.NotificationProcessingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,7 +23,7 @@ class NotificationControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private NotificationProducer producer;
+    private NotificationProcessingService notificationProcessingService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -45,7 +45,8 @@ class NotificationControllerTest {
                 .andExpect(jsonPath("$.message").value("Notification Published Successfully"))
                 .andExpect(jsonPath("$.data").value("Message sent to RabbitMQ"));
 
-        verify(producer).publish(request);
+        //verify(producer).publish(request);
+          verify(notificationProcessingService).send(request);
     }
 
     @Test
