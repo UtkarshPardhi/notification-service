@@ -13,6 +13,18 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
+postgres:
+  image: postgres:16
+  container_name: postgres
+  environment:
+    POSTGRES_DB: notification_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  ports:
+    - "5432:5432"
+  volumes:
+    - postgres-data:/var/lib/postgresql/data
+
   notification-service:
     build: .
     container_name: notification-service
@@ -33,5 +45,6 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
 
-      volumes:
+
+volumes:
         postgres-data:
