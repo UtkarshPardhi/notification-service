@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.consumer;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.service.EmailNotificationService;
@@ -29,15 +30,15 @@ public class EmailConsumerTest {
     @Test
     void shouldConsumeEmailNotification() {
 
-        NotificationRequest request = new NotificationRequest();
-        request.setNotificationId(1L);
-        request.setRecipient("utkarsh@gmail.com");
-        request.setSubject("Test Subject");
-        request.setMessage("Test Email");
+        NotificationMessage message = new NotificationMessage();
+        message.setNotificationId(1L);
+        message.setRecipient("utkarsh@gmail.com");
+        message.setSubject("Test Subject");
+        message.setMessage("Test Email");
 
-        emailConsumer.consumeEmail(request);
+        emailConsumer.consumeEmail(message);
 
-        verify(emailNotificationService).send(request);
+        verify(emailNotificationService).send(message);
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.SENT);
     }
@@ -45,20 +46,20 @@ public class EmailConsumerTest {
     @Test
     void shouldHandleEmailFailure() {
 
-        NotificationRequest request = new NotificationRequest();
-        request.setNotificationId(1L);
-        request.setRecipient("utkarsh@gmail.com");
-        request.setSubject("Test Subject");
-        request.setMessage("Test Email");
+        NotificationMessage message = new NotificationMessage();
+        message.setNotificationId(1L);
+        message.setRecipient("utkarsh@gmail.com");
+        message.setSubject("Test Subject");
+        message.setMessage("Test Email");
 
         doThrow(new RuntimeException("SMTP Down"))
                 .when(emailNotificationService)
-                .send(request);
+                .send(message);
 
         assertThrows(RuntimeException.class, () ->
-                emailConsumer.consumeEmail(request));
+                emailConsumer.consumeEmail(message));
 
-        verify(emailNotificationService).send(request);
+        verify(emailNotificationService).send(message);
 
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.FAILED);

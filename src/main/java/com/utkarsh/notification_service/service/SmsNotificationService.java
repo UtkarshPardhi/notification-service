@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.service;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,12 +10,12 @@ import org.springframework.stereotype.Service;
 public class SmsNotificationService implements NotificationService {
 
     @Override
-    public void send(NotificationRequest request) {
+    public void send(NotificationMessage message) {
 
         log.info("==============================");
         log.info("Sending SMS...");
-        log.info("Mobile :{}", request.getRecipient());
-        log.info("Message : {}", request.getMessage());
+        log.info("Mobile :{}", message.getRecipient());
+        log.info("Message : {}", message.getMessage());
         log.info("==============================");
 
         // Uncomment to test Retry & DLQ

@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.mapper;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.dto.NotificationResponse;
 import com.utkarsh.notification_service.entity.Notification;
@@ -39,6 +40,17 @@ public final class NotificationMapper {
                 .createdAt(notification.getCreatedAt())
                 .updatedAt(notification.getUpdatedAt())
                 .build();
+    }
+
+    public static NotificationMessage toMessage(Notification notification) {
+
+        return new NotificationMessage(
+                notification.getId(),
+                notification.getType(),
+                notification.getRecipient(),
+                notification.getSubject(),
+                notification.getMessage()
+        );
     }
 }
 

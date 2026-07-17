@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.consumer;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.service.NotificationPersistenceService;
@@ -29,15 +30,15 @@ public class PushConsumerTest {
     @Test
     void shouldConsumePushNotification() {
 
-        NotificationRequest request = new NotificationRequest();
-        request.setNotificationId(1L);
-        request.setRecipient("user123");
-        request.setSubject("");
-        request.setMessage("Test Push");
+        NotificationMessage message = new NotificationMessage();
+        message.setNotificationId(1L);
+        message.setRecipient("user123");
+        message.setSubject("");
+        message.setMessage("Test Push");
 
-        pushConsumer.consumePush(request);
+        pushConsumer.consumePush(message);
 
-        verify(pushNotificationService).send(request);
+        verify(pushNotificationService).send(message);
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.SENT);
     }
@@ -45,19 +46,19 @@ public class PushConsumerTest {
     @Test
     void shouldHandlePushFailure() {
 
-        NotificationRequest request = new NotificationRequest();
-        request.setNotificationId(1L);
-        request.setRecipient("user123");
-        request.setMessage("Test Push");
+        NotificationMessage message = new NotificationMessage();
+        message.setNotificationId(1L);
+        message.setRecipient("user123");
+        message.setMessage("Test Push");
 
         doThrow(new RuntimeException("Push Server Down"))
                 .when(pushNotificationService)
-                .send(request);
+                .send(message);
 
         assertThrows(RuntimeException.class, () ->
-                pushConsumer.consumePush(request));
+                pushConsumer.consumePush(message));
 
-        verify(pushNotificationService).send(request);
+        verify(pushNotificationService).send(message);
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.FAILED);
     }

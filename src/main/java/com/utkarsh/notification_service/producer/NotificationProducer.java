@@ -2,6 +2,7 @@ package com.utkarsh.notification_service.producer;
 
 
 import com.utkarsh.notification_service.constants.RabbitMQConstants;
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,9 @@ public class NotificationProducer {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void publish(NotificationRequest request) {
+    public void publish(NotificationMessage message) {
 
-        String routingKey = switch (request.getType()) {
+        String routingKey = switch (message.getType()) {
             case EMAIL -> RabbitMQConstants.EMAIL_ROUTING_KEY;
             case SMS -> RabbitMQConstants.SMS_ROUTING_KEY;
             case PUSH -> RabbitMQConstants.PUSH_ROUTING_KEY;
@@ -31,9 +32,9 @@ public class NotificationProducer {
         rabbitTemplate.convertAndSend(
                 RabbitMQConstants.NOTIFICATION_EXCHANGE,
                 routingKey,
-                request
+                message
         );
 
-        log.info("Message Published : {}", request);
+        log.info("Message Published : {}", message);
     }
 }

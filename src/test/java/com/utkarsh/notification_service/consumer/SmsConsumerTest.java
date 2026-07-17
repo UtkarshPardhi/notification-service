@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.consumer;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.service.NotificationPersistenceService;
@@ -29,15 +30,15 @@ public class SmsConsumerTest {
     @Test
     void shouldConsumeSmsNotification() {
 
-        NotificationRequest request = new NotificationRequest();
-        request.setNotificationId(1L);
-        request.setRecipient("9986492003");
-        request.setSubject("");
-        request.setMessage("Test SMS");
+        NotificationMessage message = new NotificationMessage();
+        message.setNotificationId(1L);
+        message.setRecipient("9986492003");
+        message.setSubject("");
+        message.setMessage("Test SMS");
 
-        smsConsumer.consumeSms(request);
+        smsConsumer.consumeSms(message);
 
-        verify(smsNotificationService).send(request);
+        verify(smsNotificationService).send(message);
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.SENT);
     }
@@ -45,19 +46,19 @@ public class SmsConsumerTest {
     @Test
     void shouldHandleSmsFailure() {
 
-        NotificationRequest request = new NotificationRequest();
-        request.setNotificationId(1L);
-        request.setRecipient("9986492003");
-        request.setMessage("Test SMS");
+        NotificationMessage message = new NotificationMessage();
+        message.setNotificationId(1L);
+        message.setRecipient("9986492003");
+        message.setMessage("Test SMS");
 
         doThrow(new RuntimeException("SMS Gateway Down"))
                 .when(smsNotificationService)
-                .send(request);
+                .send(message);
 
         assertThrows(RuntimeException.class, () ->
-                smsConsumer.consumeSms(request));
+                smsConsumer.consumeSms(message));
 
-        verify(smsNotificationService).send(request);
+        verify(smsNotificationService).send(message);
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.FAILED);
     }

@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.service;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,13 +10,13 @@ import org.springframework.stereotype.Service;
 public class EmailNotificationService implements NotificationService {
 
     @Override
-    public void send(NotificationRequest request) {
+    public void send(NotificationMessage message) {
 
         log.info("==============================");
         log.info("Sending Email...");
-        log.info("To :{}", request.getRecipient());
-        log.info("Subject :{}", request.getSubject());
-        log.info("Message : {}", request.getMessage());
+        log.info("To :{}", message.getRecipient());
+        log.info("Subject :{}", message.getSubject());
+        log.info("Message : {}", message.getMessage());
         log.info("==============================");
 
         // Uncomment to test Retry & DLQ

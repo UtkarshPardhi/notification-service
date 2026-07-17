@@ -1,5 +1,6 @@
 package com.utkarsh.notification_service.service;
 
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.dto.NotificationResponse;
 import com.utkarsh.notification_service.entity.Notification;
@@ -26,9 +27,12 @@ public class NotificationServiceImpl implements NotificationProcessingService {
         Notification savedNotification = persistenceService.save(notification);
 
         // Database generated ID to RabbitMQ message
-        request.setNotificationId(savedNotification.getId());
 
-        producer.publish(request);
+//        request.setNotificationId(savedNotification.getId());
+        NotificationMessage message =
+                NotificationMapper.toMessage(savedNotification);
+
+        producer.publish(message);
     }
 
     @Override

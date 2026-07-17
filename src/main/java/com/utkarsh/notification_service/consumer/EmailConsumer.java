@@ -1,6 +1,7 @@
 package com.utkarsh.notification_service.consumer;
 
 import com.utkarsh.notification_service.constants.RabbitMQConstants;
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.service.EmailNotificationService;
@@ -17,20 +18,20 @@ public class EmailConsumer {
     private final NotificationPersistenceService persistenceService;
 
     @RabbitListener(queues = RabbitMQConstants.EMAIL_QUEUE, containerFactory = "emailRetryContainerFactory")
-    public void consumeEmail(NotificationRequest request) {
+    public void consumeEmail(NotificationMessage message) {
 
         try {
 
-            emailNotificationService.send(request);
+            emailNotificationService.send(message);
 
             persistenceService.updateStatus(
-                    request.getNotificationId(),
+                    message.getNotificationId(),
                     NotificationStatus.SENT);
 
         } catch (Exception ex) {
 
             persistenceService.updateStatus(
-                    request.getNotificationId(),
+                    message.getNotificationId(),
                     NotificationStatus.FAILED);
 
             throw ex; //Important : RabbitMQ Retry + DLQ

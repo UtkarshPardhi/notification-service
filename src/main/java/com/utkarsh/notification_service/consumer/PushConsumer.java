@@ -1,6 +1,7 @@
 package com.utkarsh.notification_service.consumer;
 
 import com.utkarsh.notification_service.constants.RabbitMQConstants;
+import com.utkarsh.notification_service.dto.NotificationMessage;
 import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.service.NotificationPersistenceService;
@@ -17,19 +18,19 @@ public class PushConsumer {
     private final NotificationPersistenceService persistenceService;
 
     @RabbitListener(queues = RabbitMQConstants.PUSH_QUEUE, containerFactory = "pushRetryContainerFactory")
-    public void consumePush(NotificationRequest request) {
+    public void consumePush(NotificationMessage message) {
 
         try {
 
-            pushNotificationService.send(request);
+            pushNotificationService.send(message);
 
             persistenceService.updateStatus(
-                    request.getNotificationId(),
+                    message.getNotificationId(),
                     NotificationStatus.SENT);
         } catch (Exception ex) {
 
             persistenceService.updateStatus(
-                    request.getNotificationId(),
+                    message.getNotificationId(),
                     NotificationStatus.FAILED);
 
             throw ex;
