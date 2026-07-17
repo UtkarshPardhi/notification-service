@@ -3,6 +3,7 @@ package com.utkarsh.notification_service.service;
 import com.utkarsh.notification_service.entity.Notification;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.repository.NotificationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,13 @@ public class NotificationPersistenceService {
         return notificationRepository.save(notification);
     }
 
-    public Notification updateStatus (Notification notification,
+    public Notification updateStatus (Long notificationId,
                                       NotificationStatus status) {
+
+        Notification notification = notificationRepository.findById(notificationId)
+                        .orElseThrow(() ->
+                                new EntityNotFoundException(
+                                            "Notification not found with Id : " + notificationId ));
 
         notification.setStatus(status);
         notification.setUpdatedAt(LocalDateTime.now());

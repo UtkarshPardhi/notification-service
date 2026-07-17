@@ -25,6 +25,9 @@ public class NotificationServiceImpl implements NotificationProcessingService {
 
         Notification savedNotification = persistenceService.save(notification);
 
+        // Database generated ID to RabbitMQ message
+        request.setNotificationId(savedNotification.getId());
+
         producer.publish(request);
     }
 
