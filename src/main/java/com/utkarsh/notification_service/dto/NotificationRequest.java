@@ -13,8 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NotificationRequest {
 
-    // Id
-//    private Long notificationId;
+
 
     @NotNull(message = "Notification type is required")
     private NotificationType type;

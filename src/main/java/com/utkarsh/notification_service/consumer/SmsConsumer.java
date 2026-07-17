@@ -2,7 +2,6 @@ package com.utkarsh.notification_service.consumer;
 
 import com.utkarsh.notification_service.constants.RabbitMQConstants;
 import com.utkarsh.notification_service.dto.NotificationMessage;
-import com.utkarsh.notification_service.dto.NotificationRequest;
 import com.utkarsh.notification_service.enums.NotificationStatus;
 import com.utkarsh.notification_service.service.NotificationPersistenceService;
 import com.utkarsh.notification_service.service.SmsNotificationService;
