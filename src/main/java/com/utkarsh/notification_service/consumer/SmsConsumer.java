@@ -2,6 +2,8 @@ package com.utkarsh.notification_service.consumer;
 
 import com.utkarsh.notification_service.constants.RabbitMQConstants;
 import com.utkarsh.notification_service.dto.NotificationRequest;
+import com.utkarsh.notification_service.enums.NotificationStatus;
+import com.utkarsh.notification_service.service.NotificationPersistenceService;
 import com.utkarsh.notification_service.service.SmsNotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -12,12 +14,27 @@ import org.springframework.stereotype.Component;
 public class SmsConsumer {
 
     private final SmsNotificationService smsNotificationService;
+    private final NotificationPersistenceService persistenceService;
 
     @RabbitListener(queues = RabbitMQConstants.SMS_QUEUE, containerFactory = "smsRetryContainerFactory")
     public void consumeSms(NotificationRequest request) {
 
-        smsNotificationService.send(request);
+        try {
 
+            smsNotificationService.send(request);
+
+            persistenceService.updateStatus(
+              request.getNotificationId(),
+              NotificationStatus.SENT);
+
+        } catch (Exception ex) {
+
+            persistenceService.updateStatus(
+                    request.getNotificationId(),
+                    NotificationStatus.FAILED);
+
+            throw ex;
+        }
     }
 
 }

@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,5 +40,27 @@ public class EmailConsumerTest {
         verify(emailNotificationService).send(request);
         verify(persistenceService)
                 .updateStatus(1L, NotificationStatus.SENT);
+    }
+
+    @Test
+    void shouldHandleEmailFailure() {
+
+        NotificationRequest request = new NotificationRequest();
+        request.setNotificationId(1L);
+        request.setRecipient("utkarsh@gmail.com");
+        request.setSubject("Test Subject");
+        request.setMessage("Test Email");
+
+        doThrow(new RuntimeException("SMTP Down"))
+                .when(emailNotificationService)
+                .send(request);
+
+        assertThrows(RuntimeException.class, () ->
+                emailConsumer.consumeEmail(request));
+
+        verify(emailNotificationService).send(request);
+
+        verify(persistenceService)
+                .updateStatus(1L, NotificationStatus.FAILED);
     }
 }

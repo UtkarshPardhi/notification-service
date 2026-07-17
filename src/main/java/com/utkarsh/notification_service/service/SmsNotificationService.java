@@ -17,6 +17,7 @@ public class SmsNotificationService implements NotificationService {
         log.info("Message : {}", request.getMessage());
         log.info("==============================");
 
-        //throw new RuntimeException("Server Down");
+        // Uncomment to test Retry & DLQ
+        //throw new RuntimeException("SMS Gateway Down");
     }
 }

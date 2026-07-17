@@ -32,6 +32,8 @@ public class EmailConsumer {
             persistenceService.updateStatus(
                     request.getNotificationId(),
                     NotificationStatus.FAILED);
+
+            throw ex; //Important : RabbitMQ Retry + DLQ
         }
     }
 }

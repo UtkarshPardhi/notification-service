@@ -18,6 +18,7 @@ public class EmailNotificationService implements NotificationService {
         log.info("Message : {}", request.getMessage());
         log.info("==============================");
 
+        // Uncomment to test Retry & DLQ
        //throw new RuntimeException("SMTP Server Down");
 
     }
