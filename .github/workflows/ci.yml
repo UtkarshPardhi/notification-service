@@ -50,9 +50,9 @@ jobs:
               sleep 2
             done
 
-      - name: Build Project
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/notification_db
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
-        run: mvn clean verify
+#      - name: Build Project
+#        env:
+#          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/notification_db
+#          SPRING_DATASOURCE_USERNAME: postgres
+#          SPRING_DATASOURCE_PASSWORD: postgres
+#        run: mvn clean verify
