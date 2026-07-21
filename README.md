@@ -1,8 +1,3 @@
-## Overview
-
-Notification Service is an event-driven backend application that demonstrates asynchronous message processing using RabbitMQ. It supports Email, SMS, and Push notifications with automatic retries, dead-letter queues, Dockerized deployment, REST APIs, and Continuous Integration using GitHub Actions.
-
-
 # Notification Service
 
 ![Build](https://github.com/UtkarshPardhi/notification-service/actions/workflows/ci.yml/badge.svg)
@@ -10,6 +5,8 @@ Notification Service is an event-driven backend application that demonstrates as
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.16-brightgreen)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-4.x-orange)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
+![AWS EC2](https://img.shields.io/badge/AWS-EC2-orange)
 ![JUnit5](https://img.shields.io/badge/JUnit5-Tested-success)
 ![Mockito](https://img.shields.io/badge/Mockito-Unit%20Testing-blue)
 
@@ -19,23 +16,43 @@ The application demonstrates **asynchronous message processing** using RabbitMQ 
 
 ---
 
-# Features
+## Overview
+
+Notification Service is an event-driven backend application built with Java 21 and Spring Boot that demonstrates reliable asynchronous message processing using RabbitMQ.
+
+The project supports Email, SMS, and Push notifications using Topic Exchange routing, Spring Retry, Dead Letter Queues (DLQ), RESTful APIs, Dockerized deployment, GitHub Actions CI, and deployment on AWS EC2.
+
+## Key Highlights
+
+- Event-driven architecture using RabbitMQ
+- Topic Exchange based message routing
+- Spring Retry with Dead Letter Queue (DLQ)
+- Dockerized deployment with Docker Compose
+- Deployed on AWS EC2
+- RESTful APIs with Spring Boot
+- Swagger/OpenAPI documentation
+- GitHub Actions Continuous Integration
+- Unit Testing with JUnit 5 and Mockito
+
+## Features
 
 - Asynchronous notification processing using RabbitMQ
 - Email, SMS, and Push notification support
 - Topic Exchange based message routing
 - Spring Retry with automatic retry mechanism
 - Dead Letter Queue (DLQ) support
-- RESTful APIs using Spring Boot
+- RESTful APIs built with Spring Boot
 - Request validation using Jakarta Validation
 - Swagger / OpenAPI documentation
 - Docker & Docker Compose support
+- PostgreSQL integration
+- Deployed on AWS EC2 using Docker Compose
 - Unit Testing with JUnit 5 and Mockito
 - GitHub Actions Continuous Integration (CI)
 
 ---
 
-# Tech Stack
+## Tech Stack
 
 | Technology | Version |
 |------------|---------|
@@ -44,15 +61,18 @@ The application demonstrates **asynchronous message processing** using RabbitMQ 
 | Spring AMQP | 3.2.x |
 | RabbitMQ | 4.x |
 | Maven | 3.x |
+| PostgreSQL | 17 |
 | Docker | Latest |
-| Swagger OpenAPI | Latest |
+| Docker Compose | Latest |
+| AWS EC2 | Ubuntu |
+| Springdoc OpenAPI | Latest |
 | GitHub Actions | CI |
 | JUnit 5 | Latest |
 | Mockito | Latest |
 
 ---
 
-# Architecture
+## Architecture
 
 ```text
                     REST API
@@ -67,13 +87,13 @@ The application demonstrates **asynchronous message processing** using RabbitMQ 
          RabbitMQ Topic Exchange
         ┌─────────┬─────────┬─────────┐
         ▼         ▼         ▼
-   Email Queue  SMS Queue Push Queue
-        │         │         │
-        ▼         ▼         ▼
+   Email Queue  SMS Queue  Push Queue
+        │         │          │
+        ▼         ▼          ▼
  Email Consumer SMS Consumer Push Consumer
-        │         │         │
-        ▼         ▼         ▼
- Email     SMS      Push Services
+        │         │          │
+        ▼         ▼          ▼
+ Email Service  SMS Service  Push Service
 
           Spring Retry (3 Attempts)
                     │
@@ -84,9 +104,11 @@ The application demonstrates **asynchronous message processing** using RabbitMQ 
          Dead Letter Queue (DLQ)
 ```
 
+Producer components publish notifications to a **RabbitMQ Topic Exchange**, where messages are routed to dedicated queues using routing keys. Each queue is consumed independently by its respective notification service (Email, SMS, or Push). Failed messages are automatically retried using **Spring Retry** before being redirected to the **Dead Letter Queue (DLQ)** for further analysis or manual processing.
+
 ---
 
-# Screenshots
+## Screenshots
 
 ## Swagger UI
 
@@ -103,6 +125,14 @@ Interactive API documentation generated using Springdoc OpenAPI.
 Shows the request body, example payload and response documentation.
 
 ![Swagger Endpoint](images/swagger-endpoint.png)
+
+---
+
+### Get Notifications Endpoint
+
+Returns notification details through the REST API.
+
+![Swagger GET Endpoint](images/swagger-get-endpoint.png)
 
 ---
 
@@ -124,7 +154,7 @@ Displays the Topic Exchange and Dead Letter Exchange responsible for routing not
 
 ---
 
-# Project Structure
+## Project Structure
 
 ```text
 src
@@ -147,7 +177,8 @@ src
 
 ---
 
-# Running the Application
+## Running the Application
+docker compose up -d --build
 
 ## Clone Repository
 
@@ -177,11 +208,28 @@ http://localhost:8080
 
 ---
 
-# REST API
+## Deployment
+
+The application is successfully deployed on an AWS EC2 instance using Docker Compose. The Spring Boot application, RabbitMQ, and PostgreSQL run as Docker containers and communicate over an isolated Docker network.
+
+## Deployment Environment
+
+- AWS EC2 (Ubuntu)
+- Java 21
+- Spring Boot 3.5
+- RabbitMQ
+- PostgreSQL
+- Docker
+- Docker Compose
+
+All services run as Docker containers and communicate over an isolated Docker network managed by Docker Compose.
+
+## REST API
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/notifications` | Publish Email, SMS or Push Notification |
+| POST | `/api/notifications` | Publish Email, SMS, or Push Notification |
+| GET | `/api/notifications` | Retrieve notification details |
 
 ### Sample Request
 
@@ -219,7 +267,7 @@ Password : guest
 
 ---
 
-# Testing
+## Testing
 
 Run all tests
 
@@ -227,7 +275,9 @@ Run all tests
 mvn test
 ```
 
-### Current Test Coverage
+## Unit Test Coverage
+
+The current unit test suite covers the following components:
 
 - Notification Producer
 - Email Consumer
@@ -237,17 +287,17 @@ mvn test
 
 ---
 
-# Continuous Integration
+## Continuous Integration
 
-This project uses **GitHub Actions** for Continuous Integration.
+This project uses **GitHub Actions** to automate Continuous Integration.
 
-Every push and pull request automatically:
+On every push and pull request, the CI pipeline:
 
 - Builds the project
 - Executes all unit tests
-- Verifies project integrity
+- Verifies build stability
 
-Workflow Location:
+Workflow
 
 ```text
 .github/workflows/ci.yml
@@ -255,7 +305,8 @@ Workflow Location:
 
 ---
 
-# Docker
+## Docker
+docker compose up -d --build
 
 ### Build & Run
 
@@ -271,31 +322,30 @@ docker compose down
 
 ---
 
-# Future Improvements
+## Future Improvements
 
 - SMTP Email Integration
 - SMS Gateway Integration
 - Firebase Cloud Messaging (FCM)
-- Integration Testing using Testcontainers
 - Kubernetes Deployment
 - Prometheus & Grafana Monitoring
 - Centralized Logging
 - Metrics & Health Checks
+- Integration Testing using Testcontainers
 
 ---
 
-# Author
+## Author
 
 **Utkarsh Pardhi**
 
 MCA Graduate | Java Backend Developer
 
-**Skills:** Java • Spring Boot • RabbitMQ • Docker • REST APIs • JUnit • Mockito • GitHub Actions
+**Skills:** Java • Spring Boot • RabbitMQ • PostgreSQL • Docker • AWS EC2 • REST APIs • JUnit 5 • Mockito • GitHub Actions
 
 ---
 
-# License
+## License
 
 This project is intended for educational and portfolio purposes.
 
-Testing GitHub Actions
